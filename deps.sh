@@ -21,7 +21,11 @@ nix-store -q --requisites "$PACKAGE_PATH" > "$DEPS_LIST"
 
 # Get sizes for all dependencies
 echo "Collecting sizes..."
-cat "$DEPS_LIST" | xargs nix path-info -s > "$SIZES_LIST"
+> "$SIZES_LIST"
+while read -r dep; do
+  size=$(nix-store --query --size "$dep")
+  echo "$dep $size" >> "$SIZES_LIST"
+done < "$DEPS_LIST"
 
 # For each dependency, get its direct references
 echo "Building dependency tree..."
